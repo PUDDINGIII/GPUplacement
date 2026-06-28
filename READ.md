@@ -2,13 +2,17 @@
 
 A Kubernetes-based GPU scheduling framework for deploying and evaluating TensorRT-optimized YOLO11 workloads on an NVIDIA Jetson Orin cluster.
 
+This repository also introduces **VIGIA (Vigilant Intelligent GPU Inference Allocator)**, a lightweight hardware-aware scheduling framework that dynamically selects worker nodes using runtime hardware telemetry.
+
 ---
 
 ## Overview
 
-GPUplacement is an experimental framework designed to evaluate GPU scheduling strategies for edge AI workloads running on Kubernetes.
+GPUplacement is an experimental framework for evaluating GPU scheduling strategies for edge AI inference workloads running on Kubernetes.
 
-The project demonstrates how multiple YOLO11 TensorRT inference workloads can be deployed across a Jetson Orin cluster while monitoring hardware utilization and scheduling behavior.
+The project demonstrates how multiple TensorRT-optimized YOLO11 workloads can be deployed across an NVIDIA Jetson Orin cluster while monitoring runtime hardware conditions and scheduling behavior.
+
+Unlike the default Kubernetes scheduler, **VIGIA** considers runtime hardware metrics such as context switching, power consumption, and temperature before Pod deployment to improve scheduling decisions.
 
 The repository includes:
 
@@ -16,56 +20,8 @@ The repository includes:
 * TensorRT engine generation
 * YOLO11 deployment
 * GPU resource monitoring
-* Experimental methodology for scheduling evaluation
-
----
-
-## System Architecture
-
-```mermaid
-flowchart LR
-
-A[Jetson Orin Master]
-
-A --> B[Worker Node 1]
-A --> C[Worker Node 2]
-
-B --> D[YOLO11 TensorRT Pods]
-C --> E[YOLO11 TensorRT Pods]
-
-D --> F[GPU Monitoring]
-E --> F
-
-F --> G[Performance Analysis]
-```
-
----
-
-## Key Features
-
-* Kubernetes v1.29 cluster deployment
-* Containerd runtime configuration
-* NVIDIA Container Runtime integration
-* TensorRT-optimized YOLO11 inference
-* Multi-workload deployment
-* GPU resource monitoring using tegrastats
-* Automatic workload scheduling experiments
-* Performance evaluation on NVIDIA Jetson Orin
-
----
-
-## Project Workflow
-
-```mermaid
-flowchart TD
-
-A[Cluster Setup]
---> B[TensorRT Engine Export]
---> C[Deploy YOLO11 Pods]
---> D[Run Experiments]
---> E[Collect System Metrics]
---> F[Performance Analysis]
-```
+* Experimental methodology
+* VIGIA hardware-aware scheduling framework
 
 ---
 
@@ -79,9 +35,14 @@ README.md
 docs/
 ├── Setup.md
 ├── YOLO_Deployment.md
-└── Experiments.md
+├── Experiments.md
+└── VIGIA.md
 
-scripts/
+scheduler/
+├── vigia_scheduler.sh
+├── metrics.sh
+├── parse_tegrastats.sh
+└── config.sh
 
 yaml/
 
@@ -94,50 +55,20 @@ images/
 
 ## Documentation
 
-| Document           | Description                                     |
-| ------------------ | ----------------------------------------------- |
-| Setup.md           | Kubernetes and Containerd installation          |
-| YOLO_Deployment.md | TensorRT engine generation and deployment       |
-| Experiments.md     | Experimental methodology and evaluation process |
+| Document           | Description                                            |
+| ------------------ | ------------------------------------------------------ |
+| Setup.md           | Kubernetes cluster setup and Containerd installation   |
+| YOLO_Deployment.md | TensorRT engine export and YOLO11 deployment           |
+| Experiments.md     | Experimental methodology and evaluation                |
+| VIGIA.md           | Hardware-aware scheduling algorithm and implementation |
 
 ---
 
-## Quick Start
+## Key Contributions
 
-1. Build the Kubernetes cluster by following **Setup.md**
-2. Export YOLO11 models to TensorRT engines.
-3. Deploy inference Pods using **YOLO_Deployment.md**
-4. Execute the experimental workflow described in **Experiments.md**
-5. Analyze the collected performance metrics.
-
----
-
-## Technologies
-
-* Ubuntu 24.04
-* Kubernetes v1.29
-* Containerd
-* NVIDIA Container Runtime
-* TensorRT
-* CUDA
-* YOLO11
-* NVIDIA Jetson Orin
-
----
-
-## Future Work
-
-Future work will focus on hardware-aware GPU scheduling strategies for edge AI workloads.
-
-Potential improvements include:
-
-* Hardware-aware scheduling algorithms
-* Dynamic workload allocation
-* Latency-aware scheduling
-* Energy-efficient GPU scheduling
-
----
-
-## License
-
-This repository is intended for academic research and educational purposes.
+* Kubernetes-based AI inference framework for NVIDIA Jetson Orin
+* TensorRT-optimized YOLO11 deployment
+* Hardware-aware scheduling using runtime telemetry
+* Lightweight Bash-based scheduling framework (**VIGIA**)
+* Performance evaluation using latency, GPU utilization, power consumption, and EDP
+* Reproducible experimental workflow for edge AI scheduling research
