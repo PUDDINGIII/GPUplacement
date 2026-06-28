@@ -31,7 +31,7 @@ The experiments were conducted using a Kubernetes cluster consisting of one cont
 | ----------------- | -------------------------- |
 | Control Plane     | NVIDIA Jetson Orin         |
 | Worker Nodes      | 2 × NVIDIA Jetson Orin     |
-| GPU               | NVIDIA Ampere Architecture |
+| GPU               | NVIDIA Jetson Orin GPU     |
 | Operating System  | Ubuntu 24.04               |
 | CUDA              | CUDA 12.x                  |
 | TensorRT          | TensorRT                   |
@@ -237,12 +237,12 @@ The scheduling results were compared with the manually assigned deployment used 
 
 Resource utilization was monitored throughout every experiment.
 
-Monitoring tools.
+The following tools were used to monitor system resources during each experiment.
 
-* tegrastats
-* kubectl top
-* kubectl describe node
-* kubectl logs
+• tegrastats
+• kubectl top
+• kubectl describe node
+• kubectl logs
 
 The collected metrics included
 
@@ -255,3 +255,70 @@ The collected metrics included
 
 The monitoring data were stored for later performance analysis.
 
+---
+
+## 10. Performance Metrics
+
+The following performance metrics were collected during each experiment to evaluate system performance and resource utilization.
+
+| Metric | Description |
+|--------|-------------|
+| Average Latency | Mean inference time for each workload |
+| P99 Latency | 99th percentile latency representing worst-case performance |
+| GPU Utilization | Average GPU utilization during inference |
+| CPU Utilization | CPU usage while executing inference workloads |
+| Memory Usage | System memory consumption |
+| Power Consumption | Average power usage measured by tegrastats |
+| TensorRT Execution Time | Execution time reported by the TensorRT engine |
+
+The collected metrics were used to compare sequential and parallel inference workloads under the same hardware environment.
+
+---
+
+## 11. Experimental Reproducibility
+
+To ensure reproducibility, all experiments were conducted under identical software and hardware configurations.
+
+The following conditions remained unchanged throughout the evaluation.
+
+- Ubuntu 24.04
+- Kubernetes v1.29
+- Containerd Runtime
+- NVIDIA Jetson Orin Cluster
+- NVIDIA Container Runtime
+- TensorRT Engine
+- Identical YOLO11 Models
+- Fixed Input Resolution
+- Same Dataset for Each Task
+
+Each workload was executed multiple times to minimize measurement variance.
+
+---
+
+## 12. Performance Evaluation
+
+The experiments evaluated the execution behavior of TensorRT-based YOLO11 workloads under different deployment strategies.
+
+The evaluation focused on the following aspects.
+
+- Sequential inference performance
+- Parallel inference performance
+- Kubernetes workload distribution
+- GPU resource utilization
+- System resource utilization
+
+The collected monitoring logs were used for subsequent performance analysis and scheduling evaluation.
+
+---
+
+## Experiment Summary
+
+The experimental framework successfully demonstrates the following capabilities.
+
+- Deployment of multiple YOLO11 TensorRT workloads on Kubernetes
+- Sequential and parallel inference execution
+- Automatic workload scheduling across multiple worker nodes
+- Real-time monitoring of GPU, CPU, memory, and power consumption
+- Collection of performance metrics for scheduling evaluation
+
+The collected experimental data serve as the basis for subsequent scheduling analysis and performance evaluation.
