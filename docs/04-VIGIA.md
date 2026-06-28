@@ -8,17 +8,17 @@ Unlike the default Kubernetes scheduler, which primarily relies on static CPU an
 
 # Motivation
 
-The default Kubernetes scheduler places Pods based mainly on static resource requests and node availability.
+The default Kubernetes scheduler places Pods based primarily on static resource requests and node availability.
 
 Although this strategy is effective for cloud environments, it cannot accurately reflect the rapidly changing hardware conditions of edge AI devices.
 
 During TensorRT inference, execution latency is strongly affected by runtime hardware conditions such as:
 
-* Context switching
-* CPU scheduling overhead
-* Power consumption
-* Thermal throttling
-* Hardware resource contention
+- Context switching
+- CPU scheduling overhead
+- Power consumption
+- Thermal throttling
+- Hardware resource contention
 
 Consequently, workloads with identical resource requests may experience significantly different execution times depending on the current hardware state.
 
@@ -30,11 +30,11 @@ VIGIA addresses this limitation by observing runtime hardware metrics before dep
 
 VIGIA was designed with the following objectives.
 
-* Reduce inference latency
-* Improve scheduling stability
-* Avoid overloaded worker nodes
-* Utilize runtime hardware telemetry
-* Preserve the existing Kubernetes workflow without modifying the scheduler source code
+- Reduce inference latency
+- Improve scheduling stability
+- Avoid overloaded worker nodes
+- Utilize runtime hardware telemetry
+- Preserve the existing Kubernetes deployment workflow without modifying the Kubernetes scheduler
 
 ---
 
@@ -53,7 +53,7 @@ Apply Model Sensitivity
 Select Optimal Worker Node
         │
         ▼
-Inject nodeName
+Inject nodeName into Pod Manifest
         │
         ▼
 Deploy Pod
@@ -65,12 +65,12 @@ Deploy Pod
 
 VIGIA periodically collects runtime information from every worker node.
 
-| Metric         | Description                     |
-| -------------- | ------------------------------- |
-| Context Switch | Kernel scheduling overhead      |
-| Power          | Instantaneous power consumption |
-| Temperature    | GPU/CPU thermal status          |
-| Disk Usage     | Available storage capacity      |
+| Metric | Description |
+|----------|-------------------------------|
+| Context Switch | Kernel scheduling overhead |
+| Power | Instantaneous power consumption |
+| Node Temperature | Runtime thermal status |
+| Disk Usage | Available storage capacity |
 
 These metrics are combined to estimate the runtime scheduling cost of each worker node.
 
@@ -82,13 +82,13 @@ Different YOLO11 workloads exhibit different levels of sensitivity to hardware c
 
 VIGIA assigns a model sensitivity coefficient (θ) to each workload.
 
-| Model                 |    θ |
-| --------------------- | ---: |
+| Model | θ |
+|----------------------|----:|
 | YOLO11 Classification | 1.00 |
-| YOLO11 Segmentation   | 1.84 |
-| YOLO11 Pose           | 2.24 |
-| YOLO11 Detection      | 2.38 |
-| YOLO11 OBB            | 3.18 |
+| YOLO11 Segmentation | 1.84 |
+| YOLO11 Pose | 2.24 |
+| YOLO11 Detection | 2.38 |
+| YOLO11 OBB | 3.18 |
 
 Classification is selected as the baseline because it exhibits the lowest sensitivity to runtime interference.
 
@@ -100,7 +100,7 @@ The OBB model receives the highest coefficient due to its computational complexi
 
 VIGIA estimates the scheduling cost of each worker node using the following penalty function.
 
-[
+```math
 Penalty =
 \theta_{model}
 \left(
@@ -110,14 +110,14 @@ W_{P}\frac{Power}{10000}
 +
 W_{T}\frac{Temperature}{100}
 \right)
-]
+```
 
 where
 
-* **θ** : model sensitivity coefficient
-* **CS** : context switching frequency
-* **Power** : instantaneous power consumption
-* **Temperature** : runtime hardware temperature
+- **θ** : model sensitivity coefficient
+- **CS** : context switching frequency
+- **Power** : instantaneous power consumption
+- **Temperature** : runtime node temperature
 
 The worker node with the lowest penalty score is selected for Pod deployment.
 
@@ -127,25 +127,21 @@ The worker node with the lowest penalty score is selected for Pod deployment.
 
 Instead of replacing the default Kubernetes scheduler, VIGIA performs hardware-aware scheduling immediately before Pod deployment.
 
-The selected worker node is injected directly into the Pod specification using the `nodeName` field.
+The selected worker node is injected directly into the Pod specification using the **nodeName** field.
 
 ```text
 Hardware Monitoring
-
-↓
-
+        │
+        ▼
 Penalty Calculation
-
-↓
-
+        │
+        ▼
 Node Selection
-
-↓
-
-nodeName Injection
-
-↓
-
+        │
+        ▼
+Inject nodeName
+        │
+        ▼
 kubectl apply
 ```
 
@@ -167,10 +163,10 @@ VIGIA bypasses this uncertainty by directly injecting the selected node into the
 
 Runtime metrics are collected using lightweight Linux utilities, including
 
-* tegrastats
-* vmstat
-* pidstat
-* mpstat
+- tegrastats
+- vmstat
+- pidstat
+- mpstat
 
 This approach minimizes implementation complexity while providing low-overhead hardware telemetry.
 
@@ -188,7 +184,7 @@ Several mechanisms are incorporated to improve scheduling reliability.
 
 ## Disk Filter
 
-Worker nodes whose disk utilization exceeds 90% are excluded from scheduling.
+Worker nodes whose disk utilization exceeds **90%** are excluded from scheduling.
 
 ## Force Delete
 
@@ -200,17 +196,57 @@ Background monitoring processes are automatically terminated after each experime
 
 ---
 
+# Example Implementation
+
+The complete implementation is provided in
+
+```text
+scheduler/vigia_scheduler.sh
+```
+
+The scheduler performs the following steps.
+
+1. Collect hardware telemetry from every worker node.
+2. Calculate the hardware-aware penalty score.
+3. Apply the model sensitivity coefficient.
+4. Select the worker node with the minimum penalty.
+5. Inject the selected node into the Pod manifest.
+6. Deploy the workload using Kubernetes.
+
+Workflow:
+
+```text
+Collect tegrastats
+        │
+        ▼
+Collect vmstat
+        │
+        ▼
+Calculate Penalty
+        │
+        ▼
+Select Best Node
+        │
+        ▼
+Inject nodeName
+        │
+        ▼
+kubectl apply
+```
+
+---
+
 # Experimental Results
 
 VIGIA was evaluated using TensorRT-accelerated YOLO11 inference workloads on a Kubernetes cluster composed of two NVIDIA Jetson Orin worker nodes.
 
-Compared with the default Kubernetes scheduler, VIGIA demonstrated
+Under identical software and hardware configurations, VIGIA demonstrated:
 
-* Lower average inference latency
-* Reduced P99 latency
-* Improved scheduling stability
-* Lower Energy-Delay Product (EDP)
-* More balanced workload distribution
+- Lower average inference latency
+- Reduced P99 latency
+- Improved scheduling stability
+- Lower Energy-Delay Product (EDP)
+- More balanced workload distribution
 
 These improvements were achieved without modifying the Kubernetes scheduler or control plane components.
 
@@ -220,9 +256,9 @@ These improvements were achieved without modifying the Kubernetes scheduler or c
 
 Several limitations remain.
 
-* Model sensitivity coefficients are manually tuned.
-* Hardware conditions may change between scheduling and execution.
-* Hardware variations among worker nodes are not fully normalized.
+- Model sensitivity coefficients are manually tuned.
+- Hardware conditions may change between scheduling and execution.
+- Hardware variations among physically identical worker nodes are not fully normalized.
 
 These limitations will be addressed in future work.
 
@@ -230,13 +266,14 @@ These limitations will be addressed in future work.
 
 # Future Work
 
-Future research will focus on
+Future research will focus on:
 
-* Adaptive model sensitivity estimation
-* Predictive scheduling using historical telemetry
-* Reinforcement learning-based scheduling
-* Larger Kubernetes edge clusters
-* Additional AI inference workloads
+- Adaptive model sensitivity estimation
+- Predictive scheduling using historical telemetry
+- Reinforcement learning-based scheduling
+- Support for heterogeneous GPU clusters
+- Larger Kubernetes edge clusters
+- Additional AI inference workloads
 
 ---
 
