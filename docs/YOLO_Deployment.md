@@ -24,6 +24,8 @@ This document describes the deployment of YOLO11 models on a Kubernetes cluster 
 
 ## Deployment Workflow
 
+The overall deployment workflow is illustrated below.
+
 ```mermaid
 flowchart TD
 
@@ -179,6 +181,8 @@ yolo11n-obb.pt
 ---
 
 ## 5. Export TensorRT Engine
+
+The script exports TensorRT engines for all supported YOLO11 tasks.
 
 To reduce deployment time, TensorRT engines are generated before inference.
 
@@ -366,6 +370,8 @@ If an engine file already exists, the deployment automatically skips the convers
 
 After the TensorRT engines have been generated, deploy a Kubernetes Pod to perform inference.
 
+The inference Pod executes `inference.py`, which loads the exported TensorRT engine and performs inference on the selected dataset.
+
 ---
 
 ### Create Inference Pod
@@ -432,6 +438,8 @@ kubectl get pods
 ---
 
 ## 9. Run TensorRT Inference
+
+The inference script loads the exported TensorRT engine and performs inference on the selected dataset.
 
 Example inference script.
 
