@@ -1,0 +1,197 @@
+# ==============================================================================
+# yolo-10pods-all.yaml
+#
+# YOLO11 TensorRT Benchmark Workload
+#
+# This manifest deploys 10 TensorRT-accelerated YOLO11 inference Pods
+# for benchmarking Kubernetes scheduling algorithms.
+#
+# Models
+#   - YOLO11 Classification
+#   - YOLO11 Detection
+#   - YOLO11 Segmentation
+#   - YOLO11 OBB
+#   - YOLO11 Pose
+#
+# Runtime
+#   - TensorRT
+#   - NVIDIA Jetson Orin
+#   - Kubernetes
+#
+# ==============================================================================
+=========================================
+# [SET 1] YOLO 5종 파드 (1~5번)
+# ==========================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-cls-1
+  labels: { app: yolo-heavy, instance: "1" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-cls.engine'); model.predict(source='data/classify_src', imgsz=640, device=0, save=True, project='runs', name='cls_1')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-det-1
+  labels: { app: yolo-heavy, instance: "1" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n.engine'); model.predict(source='data/coco_src', imgsz=640, device=0, save=True, project='runs', name='det_1')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-seg-1
+  labels: { app: yolo-heavy, instance: "1" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-seg.engine'); model.predict(source='data/coco_src', imgsz=640, device=0, save=True, project='runs', name='seg_1')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-obb-1
+  labels: { app: yolo-heavy, instance: "1" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-obb.engine'); model.predict(source='data/dota_src/images', imgsz=640, device=0, save=True, project='runs', name='obb_1')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-pos-1
+  labels: { app: yolo-heavy, instance: "1" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-pose.engine'); model.predict(source='data/coco_src', imgsz=640, device=0, save=True, project='runs', name='pos_1')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+
+---
+# ==========================================
+# [SET 2] YOLO 5종 파드 (6~10번)
+# ==========================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-cls-2
+  labels: { app: yolo-heavy, instance: "2" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-cls.engine'); model.predict(source='data/classify_src', imgsz=640, device=0, save=True, project='runs', name='cls_2')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-det-2
+  labels: { app: yolo-heavy, instance: "2" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n.engine'); model.predict(source='data/coco_src', imgsz=640, device=0, save=True, project='runs', name='det_2')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-seg-2
+  labels: { app: yolo-heavy, instance: "2" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-seg.engine'); model.predict(source='data/coco_src', imgsz=640, device=0, save=True, project='runs', name='seg_2')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: "yolo-shared", persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-obb-2
+  labels: { app: yolo-heavy, instance: "2" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-obb.engine'); model.predict(source='data/dota_src/images', imgsz=640, device=0, save=True, project='runs', name='obb_2')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: yolo-pos-2
+  labels: { app: yolo-heavy, instance: "2" }
+spec:
+  restartPolicy: Never
+  containers:
+    - name: yolo-gpu
+      image: ultralytics/ultralytics:latest-jetson-jetpack6
+      securityContext: {privileged: true}
+      command: ["/bin/bash", "-c"]
+      args: ["cd /mnt/yolo && python3 -c \"from ultralytics import YOLO; model = YOLO('models/yolo11n-pose.engine'); model.predict(source='data/coco_src', imgsz=640, device=0, save=True, project='runs', name='pos_2')\" && sleep 3600"]
+      resources: {limits: {nvidia.com/gpu: 1}}
+      volumeMounts: [{name: yolo-shared, mountPath: /mnt/yolo}]
+  volumes: [{name: yolo-shared, persistentVolumeClaim: {claimName: yolo-shared-pvc}}]
