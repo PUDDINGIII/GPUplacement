@@ -25,6 +25,26 @@ The repository includes:
 
 ---
 
+## My Contribution
+
+* Collected and analyzed GPU hardware and OS-level telemetry during AI inference workloads
+* Preprocessed and time-aligned workload and system monitoring data
+* Analyzed workload interference and its impact on inference performance
+* Applied Random Forest-based feature importance analysis to identify scheduling factors
+* Designed a hardware-aware **Node Stress Index** for GPU worker selection
+* Implemented and evaluated the scheduling strategy on a Kubernetes-based Jetson Orin cluster
+
+---
+
+## Key Results
+
+* **Average inference latency: up to 28% reduction**
+* **P99 tail latency: up to 44% improvement**
+* Validated hardware-aware scheduling under different GPU resource and workload conditions
+* Evaluated scheduling performance using latency, GPU utilization, power consumption, and EDP
+
+---
+
 ## Repository Structure
 
 ```text
